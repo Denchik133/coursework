@@ -1,14 +1,14 @@
 package org.example.core;
 
 public class Cesar {
-    public static String encrypt(String text, int shift) throws Exception {
+    public static String encrypt(String text, int shift) throws WrongCharacterException {
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
         String bAlphabet = alphabet.toUpperCase();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (!alphabet.contains(String.valueOf(c)) & !bAlphabet.contains(String.valueOf(c))) {
-                throw new Exception();
+                throw new WrongCharacterException("Wrong character input text");
             }
             if (Character.isUpperCase(c)) {
                 c = getEncryptedChar(c, shift, bAlphabet);

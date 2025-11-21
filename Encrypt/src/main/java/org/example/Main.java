@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.UI.MainFrame;
+import org.example.core.ADFGVX;
 import org.example.core.ADFGX;
 import org.example.core.Cesar;
 
@@ -19,7 +20,13 @@ public class Main {
         String ADFGXdecrypted = ADFGX.decrypt(ADFGXencrypted, "usd", "bca");
         System.out.println(ADFGXdecrypted);
 
-        MainFrame UI = new MainFrame();
-        UI.setVisible(true);
+        String ADFGVXencrypted = ADFGVX.encrypt("gfbifgdbj1652", "usd", "bca");
+        System.out.println(ADFGVXencrypted);
+
+        String ADFGVXdecrypted = ADFGVX.decrypt(ADFGVXencrypted, "usd", "bca");
+        System.out.println(ADFGVXdecrypted);
+
+//        MainFrame UI = new MainFrame();
+//        UI.setVisible(true);
     }
 }

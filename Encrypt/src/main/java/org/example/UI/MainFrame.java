@@ -1,6 +1,8 @@
 package org.example.UI;
 
 import org.example.core.Cesar;
+import org.example.core.KeyNotValidException;
+import org.example.core.WrongCharacterException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +22,7 @@ public class MainFrame extends JFrame {
         tabbedPane.addTab("Text", buildTextTab());
         this.add(tabbedPane, BorderLayout.CENTER);
         initListeners();
+        this.setSize(800, 600);
     }
 
     private JPanel buildTextTab() {
@@ -73,14 +76,45 @@ public class MainFrame extends JFrame {
         encryptButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String text = inputField.getText();
-                int shift = Integer.parseInt(text);
-                String inputText = inputArea.getText();
                 try {
+                    String text = inputField.getText();
+                    int shift = Integer.parseInt(text);
+                    String inputText = inputArea.getText();
+                    if (inputText.equals("")) {
+                        throw new WrongCharacterException("Enter text");
+                    }
                     String outputText = Cesar.encrypt(inputText, shift);
                     outputArea.setText(outputText);
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
+                } catch (NumberFormatException ex) {
+                    MyDialogWindow dialog = new MyDialogWindow(MainFrame.this, "Shift must be an integer");
+                    dialog.setVisible(true);
+                }
+                catch (WrongCharacterException ex){
+                    MyDialogWindow dialog = new MyDialogWindow(MainFrame.this, ex.getMessage());
+                    dialog.setVisible(true);
+                }
+            }
+        });
+
+        decryptButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String text = inputField.getText();
+                    int shift = Integer.parseInt(text);
+                    String inputText = inputArea.getText();
+                    if (inputText.equals("")) {
+                        throw new WrongCharacterException("Enter text");
+                    }
+                    String outputText = Cesar.decrypt(inputText, shift);
+                    outputArea.setText(outputText);
+                } catch (NumberFormatException ex) {
+                    MyDialogWindow dialog = new MyDialogWindow(MainFrame.this, "Shift must be an integer");
+                    dialog.setVisible(true);
+                }
+                catch (WrongCharacterException ex){
+                    MyDialogWindow dialog = new MyDialogWindow(MainFrame.this, ex.getMessage());
+                    dialog.setVisible(true);
                 }
             }
         });
