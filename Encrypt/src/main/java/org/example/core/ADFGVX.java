@@ -55,9 +55,6 @@ public class ADFGVX {
         int j = 0;
         for (; i < rows; i++){
             for (j = 0; j < cols; j++){
-                if (shuffle[i][j] == '\u0000') {
-                    finalResult.append("XX");
-                }
                 finalResult.append(shuffle[i][j]);
             }
         }
@@ -172,7 +169,7 @@ public class ADFGVX {
         String result = sb.toString();
         StringBuilder finalResult = new StringBuilder();
         char[][] square = createSquare(key1);
-        for (int h = 0; h < result.length(); h += 2){
+        for (int h = 0; h + 1 < result.length(); h += 2){
             finalResult.append(getDecryptedChar(result.charAt(h),
                     result.charAt(h + 1), square));
         }

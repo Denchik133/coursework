@@ -1,9 +1,9 @@
 package org.example;
 
-import org.example.UI.MainFrame;
 import org.example.core.ADFGVX;
 import org.example.core.ADFGX;
 import org.example.core.Cesar;
+import org.example.core.Vigener;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -23,6 +23,12 @@ public class Main {
 
         String ADFGVXdecrypted = ADFGVX.decrypt(ADFGVXencrypted, "usd", "bca");
         System.out.println(ADFGVXdecrypted);
+
+        String VigenerEncrypt = Vigener.encrypt("vigenere", "usd");
+        System.out.println(VigenerEncrypt);
+
+        String VigenerDecrypted = Vigener.decrypt(VigenerEncrypt, "usd");
+        System.out.println(VigenerDecrypted);
 
 //        MainFrame UI = new MainFrame();
 //        UI.setVisible(true);
