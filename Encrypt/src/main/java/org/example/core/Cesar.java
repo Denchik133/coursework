@@ -1,7 +1,13 @@
 package org.example.core;
 
+import org.example.UI.CypherType;
+import org.example.core.exceptions.KeyNotValidException;
+import org.example.core.exceptions.WrongCharacterException;
+
 public class Cesar {
-    public static String encrypt(String text, int shift) throws WrongCharacterException {
+    public static String encrypt(String text, String shift) throws WrongCharacterException, KeyNotValidException {
+        KeyValidator.validateWithThrows(CypherType.CESAR, new CypherParams(shift, null, null, null));
+        int shiftNumber = Integer.parseInt(shift);
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
         String bAlphabet = alphabet.toUpperCase();
         StringBuilder sb = new StringBuilder();
@@ -11,10 +17,10 @@ public class Cesar {
                 throw new WrongCharacterException("Wrong character input text");
             }
             if (Character.isUpperCase(c)) {
-                c = getEncryptedChar(c, shift, bAlphabet);
+                c = getEncryptedChar(c, shiftNumber, bAlphabet);
             }
             else {
-                c = getEncryptedChar(c, shift, alphabet);
+                c = getEncryptedChar(c, shiftNumber, alphabet);
             }
             sb.append(c);
         }
@@ -26,17 +32,18 @@ public class Cesar {
         return alphabet.charAt((shift + index) % alphabet.length());
     }
 
-    public static String decrypt(String text, int shift){
+    public static String decrypt(String text, String shift){
+        int shiftNumber = Integer.parseInt(shift);
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
         String bAlphabet = alphabet.toUpperCase();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (Character.isUpperCase(c)) {
-                c = getDecryptedChar(c, shift, bAlphabet);
+                c = getDecryptedChar(c, shiftNumber, bAlphabet);
             }
             else {
-                c = getDecryptedChar(c, shift, alphabet);
+                c = getDecryptedChar(c, shiftNumber, alphabet);
             }
             sb.append(c);
         }

@@ -1,15 +1,16 @@
 package org.example;
 
+import org.example.UI.MainFrame;
 import org.example.core.ADFGVX;
 import org.example.core.ADFGX;
 import org.example.core.Cesar;
-import org.example.core.Vigener;
+import org.example.core.Vigenere;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        String encrypted = Cesar.encrypt("abc", 32);
+        String encrypted = Cesar.encrypt("abc", "3");
         System.out.println(encrypted);
-        String decrypted = Cesar.decrypt(encrypted, 32);
+        String decrypted = Cesar.decrypt(encrypted, "3");
         System.out.println(decrypted);
 
         String ADFGXencrypted = ADFGX.encrypt("gfbifgdbj", "usd", "bca");
@@ -24,13 +25,13 @@ public class Main {
         String ADFGVXdecrypted = ADFGVX.decrypt(ADFGVXencrypted, "usd", "bca");
         System.out.println(ADFGVXdecrypted);
 
-        String VigenerEncrypt = Vigener.encrypt("vigenere", "usd");
-        System.out.println(VigenerEncrypt);
+        String VigenereEncrypt = Vigenere.encrypt("vigenere", "usd");
+        System.out.println(VigenereEncrypt);
 
-        String VigenerDecrypted = Vigener.decrypt(VigenerEncrypt, "usd");
-        System.out.println(VigenerDecrypted);
+        String VigenereDecrypted = Vigenere.decrypt(VigenereEncrypt, "usd");
+        System.out.println(VigenereDecrypted);
 
-//        MainFrame UI = new MainFrame();
-//        UI.setVisible(true);
+        MainFrame UI = new MainFrame();
+        UI.setVisible(true);
     }
 }

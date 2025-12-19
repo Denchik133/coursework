@@ -1,13 +1,18 @@
 package org.example.core;
 
+import org.example.UI.CypherType;
+import org.example.core.exceptions.KeyNotValidException;
+import org.example.core.exceptions.WrongCharacterException;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class ADFGVX {
-    private static final String alphabet = "abcdefghijklmnopqrstuvwxyz1234567890";
+    public static final String alphabet = "abcdefghijklmnopqrstuvwxyz1234567890";
 
     public static String encrypt(String text, String key1, String key2) throws KeyNotValidException, WrongCharacterException {
+        KeyValidator.validateWithThrows(CypherType.ADFGVX, new CypherParams(null, null, key1, key2));
         char[][] tabel = createSquare(key1);
         // Перший етап шифрування
         StringBuilder sb = new StringBuilder();
@@ -63,7 +68,6 @@ public class ADFGVX {
 
     private static char[][] createSquare(String key1) throws KeyNotValidException {
         char[][] tabel = new char[6][6];
-        verifyFirstKey(key1);
         Set<Character> set = new LinkedHashSet<Character>();
         for (int i = 0; i < key1.length(); i++) {
             set.add(key1.charAt(i));
@@ -113,18 +117,18 @@ public class ADFGVX {
         throw new WrongCharacterException("Text contains wrong character:" + c);
     }
 
-    private static boolean verifyFirstKey(String key1) throws KeyNotValidException {
-        String key = key1.toLowerCase();
-        for (int i = 0; i < key.length(); i++){
-            if (!alphabet.contains(String.valueOf(key.charAt(i)))){
-                throw new KeyNotValidException(key.charAt(i) + " Не входить до алфавіту");
-            }
-        }
-        return false;
-    }
+//    private static boolean verifyFirstKey(String key1) throws KeyNotValidException {
+//        String key = key1.toLowerCase();
+//        for (int i = 0; i < key.length(); i++){
+//            if (!alphabet.contains(String.valueOf(key.charAt(i)))){
+//                throw new KeyNotValidException(key.charAt(i) + " Не входить до алфавіту");
+//            }
+//        }
+//        return false;
+//    }
 
     public static String decrypt(String text, String key1, String key2) throws KeyNotValidException, WrongCharacterException {
-        verifyFirstKey(key1);
+        KeyValidator.validateWithThrows(CypherType.ADFGVX, new CypherParams(null, null, key1, key2));
         int cols = key2.length();
         int rows = text.length() / cols + 1;
         if (text.length() % cols != 0){

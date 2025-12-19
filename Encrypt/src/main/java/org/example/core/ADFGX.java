@@ -1,13 +1,18 @@
 package org.example.core;
 
+import org.example.UI.CypherType;
+import org.example.core.exceptions.KeyNotValidException;
+import org.example.core.exceptions.WrongCharacterException;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class ADFGX {
-    private static final String alphabet = "abcdefghijklmnopqrstuvwxyz";
+    public static final String alphabet = "abcdefghijklmnopqrstuvwxyz";
 
     public static String encrypt(String text, String key1, String key2) throws KeyNotValidException, WrongCharacterException {
+        KeyValidator.validateWithThrows(CypherType.ADFGX, new CypherParams(null, null, key1, key2));
         char[][] tabel = createSquare(key1);
         text = text.replace('j', 'i');
         // Перший етап шифрування
@@ -55,9 +60,8 @@ public class ADFGX {
         return finalResult.toString();
     }
 
-    private static char[][] createSquare(String key1) throws KeyNotValidException {
+    private static char[][] createSquare(String key1) {
         char[][] tabel = new char[5][5];
-        verifyFirstKey(key1);
         Set<Character> set = new LinkedHashSet<Character>();
         for (int i = 0; i < key1.length(); i++) {
             set.add(key1.charAt(i));
@@ -110,18 +114,18 @@ public class ADFGX {
         throw new WrongCharacterException("Text contains wrong character:" + c);
     }
 
-    private static boolean verifyFirstKey(String key1) throws KeyNotValidException {
-        String key =  key1.toLowerCase();
-        for (int i = 0; i < key.length(); i++){
-            if (!alphabet.contains(String.valueOf(key.charAt(i)))){
-                throw new KeyNotValidException(key.charAt(i) + " Не входить до алфавіту");
-            }
-        }
-        return false;
-    }
+//    private static boolean verifyFirstKey(String key1) throws KeyNotValidException {
+//        String key =  key1.toLowerCase();
+//        for (int i = 0; i < key.length(); i++){
+//            if (!alphabet.contains(String.valueOf(key.charAt(i)))){
+//                throw new KeyNotValidException(key.charAt(i) + " Не входить до алфавіту");
+//            }
+//        }
+//        return false;
+//    }
 
-    public static String decrypt(String text, String key1, String key2) throws Exception {
-        verifyFirstKey(key1);
+    public static String decrypt(String text, String key1, String key2) throws WrongCharacterException, KeyNotValidException {
+        KeyValidator.validateWithThrows(CypherType.ADFGX, new CypherParams(null, null, key1, key2));
         int cols = key2.length();
         int rows = text.length() / cols + 1;
         if (text.length() % cols != 0){
@@ -159,8 +163,9 @@ public class ADFGX {
         String result = sb.toString();
         StringBuilder finalResult = new StringBuilder();
         char[][] square = createSquare(key1);
-        for (int h = 0; h < result.length(); h += 2){
-            finalResult.append(getDecryptedChar(result.charAt(h), result.charAt(h + 1), square));
+        for (int h = 0; h + 1 < result.length(); h += 2){
+            finalResult.append(getDecryptedChar(result.charAt(h),
+                    result.charAt(h + 1), square));
         }
         return finalResult.toString();
     }
@@ -177,12 +182,12 @@ public class ADFGX {
         return square[array.indexOf(c)][array.indexOf(c1)];
     }
 
-    private static int findIndex(char[][] recoveredShuffle, char c) throws Exception {
+    private static int findIndex(char[][] recoveredShuffle, char c) {
         for (int i = 0; i < recoveredShuffle.length; i++){
             if (recoveredShuffle[0][i] == c){
                 return i;
             }
         }
-        throw new Exception();
+        throw new RuntimeException();
     }
 }
