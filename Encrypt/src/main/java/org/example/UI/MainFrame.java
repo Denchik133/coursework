@@ -1,6 +1,8 @@
 package org.example.UI;
 
 import org.example.core.*;
+import org.example.core.asymmetric.ChatUser;
+import org.example.core.asymmetric.MessageBus;
 import org.example.core.exceptions.KeyNotValidException;
 import org.example.core.exceptions.WrongCharacterException;
 
@@ -36,12 +38,47 @@ public class MainFrame extends JFrame {
     private JLabel errorMessage = new JLabel();
     private Map<KeyField, JComponent> map = new HashMap<>();
     private JPanel bottomPanel;
+    private JPanel centerArea = new JPanel();
+    private MessageBus messageBus = MessageBus.getInstance();
 
     public MainFrame() {
         tabbedPane.addTab("Text", buildTextTab());
+        tabbedPane.addTab("RSA", buildRSAtab());
         this.add(tabbedPane, BorderLayout.CENTER);
         initListeners();
-        this.setSize(800, 600);
+        this.setSize(900, 650);
+        this.setLocationRelativeTo(null);
+    }
+
+    private JPanel buildRSAtab() {
+        JPanel root = new JPanel();
+        root.setLayout(new BorderLayout());
+        root.add(centerArea, BorderLayout.CENTER);
+        JButton addUser = new JButton("Add User");
+        addUser.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = JOptionPane.showInputDialog("Enter User's Name:");
+                if (name == null || name.isEmpty()) {
+                    JOptionPane.showMessageDialog(MainFrame.this, "Name cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                else if (messageBus.userExist(name)) {
+                    JOptionPane.showMessageDialog(MainFrame.this, "User already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                else {
+                    UserCard card = new UserCard(messageBus.registerUser(name));
+                    centerArea.add(card);
+                    centerArea.revalidate();
+                    centerArea.repaint();
+                }
+            }
+        });
+        for (ChatUser user : messageBus.getChatUsers()) {
+            UserCard card = new UserCard(user);
+            centerArea.add(card);
+        }
+        root.add(addUser, BorderLayout.SOUTH);
+        return root;
     }
 
     private JPanel buildTextTab() {
@@ -232,6 +269,8 @@ public class MainFrame extends JFrame {
         inputField1.addKeyListener(keyAdapter);
         inputField2.addKeyListener(keyAdapter);
         inputField3.addKeyListener(keyAdapter);
+        inputField4.addKeyListener(keyAdapter);
+        inputField5.addKeyListener(keyAdapter);
 
         comboBox1.addActionListener(new ActionListener() {
             @Override

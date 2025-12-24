@@ -1,0 +1,47 @@
+package org.example.core.asymmetric;
+
+import org.example.core.asymmetric.exceptions.EmptyMessageException;
+import org.example.core.asymmetric.exceptions.MessageIsForAnotherUserException;
+import org.example.core.exceptions.ReceiverDoesntExistException;
+
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.time.Instant;
+
+public class ChatUser {
+    private String name;
+    private final KeyPair keyPair;
+
+    public String getName() {
+        return name;
+    }
+
+    public PublicKey getPublicKey() {
+        return keyPair.getPublic();
+    }
+
+    public ChatUser(String name) {
+        this.name = name;
+        keyPair = RSAService.generateKeyPair();
+    }
+
+    public String decrypt(ChatMessage message) throws MessageIsForAnotherUserException {
+        if (message.getTo().equals(this)) {
+            return RSAService.decrypt(message.getMessage(), keyPair.getPrivate());
+        }
+        throw new MessageIsForAnotherUserException("Message for another user");
+    }
+
+    public void sendMessage(ChatUser user, String message) throws EmptyMessageException, ReceiverDoesntExistException {
+        if (message == null || message.isEmpty()) {
+            throw new EmptyMessageException("Message is empty");
+        }
+        if (user == null) {
+            throw new ReceiverDoesntExistException("Receiver is not selected");
+        }
+        MessageBus messageBus = MessageBus.getInstance();
+        byte[] encryptedMessage = RSAService.encrypt(message, user.getPublicKey());
+        ChatMessage chatMessage = new ChatMessage(this, user, encryptedMessage, Instant.now());
+        messageBus.addMessage(chatMessage);
+    }
+}
