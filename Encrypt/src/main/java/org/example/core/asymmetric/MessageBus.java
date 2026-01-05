@@ -1,5 +1,7 @@
 package org.example.core.asymmetric;
 
+import org.example.core.asymmetric.exceptions.ChatUserException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +67,10 @@ public class MessageBus {
         return false;
     }
 
-    public ChatUser registerUser(String name) {
+    public ChatUser registerUser(String name) throws ChatUserException {
+        if (userExist(name)) {
+            throw new ChatUserException("User with name " + name + " already exists!");
+        }
         ChatUser chatUser = new ChatUser(name);
         chatUsers.add(chatUser);
         return chatUser;

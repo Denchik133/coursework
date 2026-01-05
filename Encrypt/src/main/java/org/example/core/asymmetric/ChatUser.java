@@ -1,6 +1,7 @@
 package org.example.core.asymmetric;
 
 import org.example.core.asymmetric.exceptions.EmptyMessageException;
+import org.example.core.asymmetric.exceptions.ChatUserException;
 import org.example.core.asymmetric.exceptions.MessageIsForAnotherUserException;
 import org.example.core.exceptions.ReceiverDoesntExistException;
 
@@ -20,9 +21,17 @@ public class ChatUser {
         return keyPair.getPublic();
     }
 
-    public ChatUser(String name) {
+    public ChatUser(String name) throws ChatUserException {
         this.name = name;
         keyPair = RSAService.generateKeyPair();
+        if (name == null || name.isEmpty()) {
+            throw new ChatUserException("Name cannot be empty!");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 
     public String decrypt(ChatMessage message) throws MessageIsForAnotherUserException {

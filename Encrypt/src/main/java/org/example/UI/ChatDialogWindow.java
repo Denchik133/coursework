@@ -4,6 +4,7 @@ import org.example.core.asymmetric.ChatMessage;
 import org.example.core.asymmetric.ChatUser;
 import org.example.core.asymmetric.MessageBus;
 import org.example.core.asymmetric.exceptions.EmptyMessageException;
+import org.example.core.asymmetric.exceptions.MessageIsForAnotherUserException;
 import org.example.core.exceptions.ReceiverDoesntExistException;
 
 import javax.swing.*;
@@ -30,28 +31,30 @@ public class ChatDialogWindow extends JDialog {
         chatUser = user;
         userPublicKey = new JLabel(user.getPublicKey().toString());
         userName = new JLabel(user.getName());
-        JPanel userCard;
-        userCard = new JPanel();
+        JPanel userCard = new JPanel();
         userCard.setLayout(new BoxLayout(userCard, BoxLayout.Y_AXIS));
         userCard.add(userName);
         userCard.add(userPublicKey);
+        this.setSize(600, 400);
+        this.setLocationRelativeTo(null);
         sendMessageContainer = new JPanel();
         chatMessageContainer = new JPanel();
+        buildSendMessageContainer();
+        buildChatMessageContainer();
         root.setLayout(new BoxLayout(root,BoxLayout.Y_AXIS));
-        this.add(root);
         root.add(userCard);
         root.add(sendMessageContainer);
         root.add(chatMessageContainer);
-        buildSendMessageContainer();
-        buildChatMessageContainer();
+        this.add(root);
     }
 
     private void buildChatMessageContainer() {
         refreshChatMessageListModel(true);
-        sendMessageContainer.setLayout(new BorderLayout());
+        chatMessageContainer.setLayout(new BorderLayout());
         JScrollPane scrollPane = new JScrollPane(list);
-        sendMessageContainer.add(scrollPane, BorderLayout.CENTER);
+        chatMessageContainer.add(scrollPane, BorderLayout.CENTER);
         JComboBox<String> comboBox = new JComboBox<>(new String[]{"All messages", "Messages to me"});
+        chatMessageContainer.add(comboBox, BorderLayout.NORTH);
         comboBox.setSelectedIndex(1);
         comboBox.addActionListener(new ActionListener() {
             @Override
@@ -67,7 +70,21 @@ public class ChatDialogWindow extends JDialog {
                 }
             }
         });
-
+        JButton showMessageButon = new JButton("Show message");
+        showMessageButon.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ChatMessage message = (ChatMessage) list.getSelectedValue();
+                if (message != null) {
+                    try {
+                        JOptionPane.showMessageDialog(ChatDialogWindow.this, chatUser.decrypt(message), "Message: ",  JOptionPane.INFORMATION_MESSAGE);
+                    } catch (MessageIsForAnotherUserException ex) {
+                        JOptionPane.showMessageDialog(ChatDialogWindow.this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+        chatMessageContainer.add(showMessageButon, BorderLayout.SOUTH);
     }
 
     public void refreshChatMessageListModel(boolean showAllMessages) {
@@ -105,6 +122,5 @@ public class ChatDialogWindow extends JDialog {
         userModel.addAll(users);
         list2.revalidate();
         list2.repaint();
-
     }
 }

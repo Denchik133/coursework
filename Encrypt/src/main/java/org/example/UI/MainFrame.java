@@ -3,15 +3,13 @@ package org.example.UI;
 import org.example.core.*;
 import org.example.core.asymmetric.ChatUser;
 import org.example.core.asymmetric.MessageBus;
+import org.example.core.asymmetric.exceptions.ChatUserException;
 import org.example.core.exceptions.KeyNotValidException;
 import org.example.core.exceptions.WrongCharacterException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,26 +57,42 @@ public class MainFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String name = JOptionPane.showInputDialog("Enter User's Name:");
-                if (name == null || name.isEmpty()) {
-                    JOptionPane.showMessageDialog(MainFrame.this, "Name cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                else if (messageBus.userExist(name)) {
-                    JOptionPane.showMessageDialog(MainFrame.this, "User already exists!", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                else {
-                    UserCard card = new UserCard(messageBus.registerUser(name));
+                try {
+                    UserCard card = new UserCard(messageBus.registerUser(name.toUpperCase()));
+                    addUserCardsListeners(card);
                     centerArea.add(card);
                     centerArea.revalidate();
                     centerArea.repaint();
+                } catch (ChatUserException ex) {
+                    JOptionPane.showMessageDialog(MainFrame.this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
         for (ChatUser user : messageBus.getChatUsers()) {
             UserCard card = new UserCard(user);
+            addUserCardsListeners(card);
             centerArea.add(card);
         }
         root.add(addUser, BorderLayout.SOUTH);
         return root;
+    }
+
+    private void addUserCardsListeners(UserCard card) {
+        card.setListener(new UserCardListener() {
+            @Override
+            public void onUserSelected(ChatUser user) {
+                ChatDialogWindow dialogWindow = new ChatDialogWindow(user);
+                dialogWindow.setVisible(true);
+                card.setSelected(true);
+                dialogWindow.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        super.windowClosed(e);
+                        card.setSelected(false);
+                    }
+                });
+            }
+        });
     }
 
     private JPanel buildTextTab() {

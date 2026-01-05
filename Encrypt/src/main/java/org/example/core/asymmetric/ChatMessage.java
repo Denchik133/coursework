@@ -15,6 +15,11 @@ public class ChatMessage {
         this.timestamp = timestamp;
     }
 
+    @Override
+    public String toString() {
+        return "Message from: " + from + " to: " + to + " time: " + timestamp;
+    }
+
     public ChatUser getFrom() {
         return from;
     }
