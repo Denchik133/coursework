@@ -23,5 +23,4 @@ public class SimulationState implements Serializable {
     private List<ChatUser> users;
     private List<ChatMessage> messages;
 
-
 }

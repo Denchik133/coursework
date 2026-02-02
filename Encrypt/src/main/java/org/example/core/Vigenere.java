@@ -1,12 +1,12 @@
 package org.example.core;
 
-import org.example.UI.CypherType;
+import org.example.UI.CipherType;
 import org.example.core.exceptions.KeyNotValidException;
 
 public class Vigenere {
     public final static String alphabet = "abcdefghijklmnopqrstuvwxyz";
     public static String encrypt(String text, String key) throws KeyNotValidException {
-        KeyValidator.validateWithThrows(CypherType.VIGENERE, new CypherParams(null, key, null, null));
+        KeyValidator.validateWithThrows(CipherType.VIGENERE, new CipherParams(null, key, null, null));
         for (int i = 0; i < key.length(); i++) {
             if (!alphabet.contains(String.valueOf(key.charAt(i)))) {
                 throw new KeyNotValidException("Key contains a symbol(-s) that does not belong to the alphabet");

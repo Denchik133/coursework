@@ -1,6 +1,6 @@
 package org.example.core;
 
-import org.example.UI.CypherType;
+import org.example.UI.CipherType;
 import org.example.core.exceptions.KeyNotValidException;
 import org.example.core.exceptions.WrongCharacterException;
 
@@ -12,7 +12,7 @@ public class ADFGX {
     public static final String alphabet = "abcdefghijklmnopqrstuvwxyz";
 
     public static String encrypt(String text, String key1, String key2) throws KeyNotValidException, WrongCharacterException {
-        KeyValidator.validateWithThrows(CypherType.ADFGX, new CypherParams(null, null, key1, key2));
+        KeyValidator.validateWithThrows(CipherType.ADFGX, new CipherParams(null, null, key1, key2));
         char[][] tabel = createSquare(key1);
         text = text.replace('j', 'i');
         // Перший етап шифрування
@@ -125,7 +125,7 @@ public class ADFGX {
 //    }
 
     public static String decrypt(String text, String key1, String key2) throws WrongCharacterException, KeyNotValidException {
-        KeyValidator.validateWithThrows(CypherType.ADFGX, new CypherParams(null, null, key1, key2));
+        KeyValidator.validateWithThrows(CipherType.ADFGX, new CipherParams(null, null, key1, key2));
         int cols = key2.length();
         int rows = text.length() / cols + 1;
         if (text.length() % cols != 0){

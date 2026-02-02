@@ -1,30 +1,30 @@
 package org.example.core;
 
-import org.example.UI.CypherType;
+import org.example.UI.CipherType;
 import org.example.core.exceptions.KeyNotValidException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class KeyValidator {
-    public static Map<KeyField, String> validate(CypherType type, CypherParams params) {
+    public static Map<KeyField, String> validate(CipherType type, CipherParams params) {
         Map<KeyField, String> map = new HashMap<>();
         switch (type) {
-            case CypherType.CESAR -> validateCesar(params, map);
-            case CypherType.VIGENERE -> validateVigenere(params, map);
-            case CypherType.ADFGX -> validateADFGX(params, map);
-            case CypherType.ADFGVX -> validateADFGVX(params, map);
+            case CipherType.CESAR -> validateCesar(params, map);
+            case CipherType.VIGENERE -> validateVigenere(params, map);
+            case CipherType.ADFGX -> validateADFGX(params, map);
+            case CipherType.ADFGVX -> validateADFGVX(params, map);
         }
     return map;
     }
 
-    public static void validateWithThrows(CypherType type, CypherParams params) throws KeyNotValidException {
+    public static void validateWithThrows(CipherType type, CipherParams params) throws KeyNotValidException {
         Map<KeyField, String> map = new HashMap<>();
         switch (type) {
-            case CypherType.CESAR -> validateCesar(params, map);
-            case CypherType.VIGENERE -> validateVigenere(params, map);
-            case CypherType.ADFGX -> validateADFGX(params, map);
-            case CypherType.ADFGVX -> validateADFGVX(params, map);
+            case CipherType.CESAR -> validateCesar(params, map);
+            case CipherType.VIGENERE -> validateVigenere(params, map);
+            case CipherType.ADFGX -> validateADFGX(params, map);
+            case CipherType.ADFGVX -> validateADFGVX(params, map);
         }
         for (Map.Entry<KeyField, String> entry : map.entrySet()) {
             String errorMessage = entry.getValue();
@@ -32,7 +32,7 @@ public class KeyValidator {
         }
     }
 
-    private static void validateADFGVX(CypherParams params, Map<KeyField, String> map) {
+    private static void validateADFGVX(CipherParams params, Map<KeyField, String> map) {
         String ADFGVXkey1 = params.getKey1();
         String ADFGVXkey2 = params.getKey2();
         if (ADFGVXkey1 == null || ADFGVXkey1.length() ==  0) {
@@ -53,7 +53,7 @@ public class KeyValidator {
         }
     }
 
-    private static void validateADFGX(CypherParams params, Map<KeyField, String> map) {
+    private static void validateADFGX(CipherParams params, Map<KeyField, String> map) {
         String ADFGXkey1 = params.getKey1();
         String ADFGXkey2 = params.getKey2();
         if (ADFGXkey1 == null || ADFGXkey1.length() ==  0) {
@@ -74,7 +74,7 @@ public class KeyValidator {
         }
     }
 
-    private static void validateVigenere(CypherParams params, Map<KeyField, String> map) {
+    private static void validateVigenere(CipherParams params, Map<KeyField, String> map) {
         String VigenereKey = params.getVigenereKey();
         if (VigenereKey == null || VigenereKey.length() == 0) {
             map.put(KeyField.VIGENERE_KEY, "Key is empty");
@@ -86,7 +86,7 @@ public class KeyValidator {
         }
     }
 
-    private static void validateCesar(CypherParams params, Map<KeyField, String> map) {
+    private static void validateCesar(CipherParams params, Map<KeyField, String> map) {
         int cesarShift = 0;
         try {
             cesarShift = Integer.parseInt(params.getCesarShift());
