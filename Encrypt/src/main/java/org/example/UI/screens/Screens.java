@@ -6,4 +6,5 @@ public interface Screens {
     String LOGGER = "Logger";
     String CIPHER = "Cipher";
     String SIMULATION = "Simulation";
+    String CIPHER_HISTORY = "Cipher History";
 }

@@ -1,10 +1,10 @@
 package org.example.core;
 
-import org.example.UI.CipherType;
 import org.example.core.exceptions.KeyNotValidException;
 import org.example.core.exceptions.WrongCharacterException;
 
 public class Cesar {
+
     public static String encrypt(String text, String shift) throws WrongCharacterException, KeyNotValidException {
         KeyValidator.validateWithThrows(CipherType.CESAR, new CipherParams(shift, null, null, null));
         int shiftNumber = Integer.parseInt(shift);

@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.List;
 
 public class SimulationState implements Serializable {
+    private List<ChatUser> users;
+    private List<ChatMessage> messages;
+
     public List<ChatUser> getUsers() {
         return users;
     }
@@ -20,7 +23,5 @@ public class SimulationState implements Serializable {
         this.messages = messages;
     }
 
-    private List<ChatUser> users;
-    private List<ChatMessage> messages;
 
 }

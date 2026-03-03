@@ -1,6 +1,8 @@
 package org.example.core;
 
-public class CipherParams {
+import java.io.Serializable;
+
+public class CipherParams implements Serializable {
     private String cesarShift;
     private String vigenereKey;
     private String key1;

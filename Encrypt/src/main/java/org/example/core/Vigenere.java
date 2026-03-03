@@ -1,10 +1,10 @@
 package org.example.core;
 
-import org.example.UI.CipherType;
 import org.example.core.exceptions.KeyNotValidException;
 
 public class Vigenere {
     public final static String alphabet = "abcdefghijklmnopqrstuvwxyz";
+
     public static String encrypt(String text, String key) throws KeyNotValidException {
         KeyValidator.validateWithThrows(CipherType.VIGENERE, new CipherParams(null, key, null, null));
         for (int i = 0; i < key.length(); i++) {

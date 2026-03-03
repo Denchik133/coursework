@@ -1,11 +1,11 @@
 package org.example.core;
 
-import org.example.UI.CipherType;
 import org.example.core.exceptions.KeyNotValidException;
 import org.example.core.exceptions.WrongCharacterException;
 import org.example.core.exceptions.WrongCipherTypeException;
 
 public class CipherService {
+
     public static String encrypt(String text, CipherParams params, CipherType type) throws WrongCharacterException, KeyNotValidException {
         switch (type){
             case CipherType.CESAR:{

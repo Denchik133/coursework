@@ -1,6 +1,12 @@
 package org.example.core.asymmetric;
 
 import org.example.core.asymmetric.exceptions.ChatUserException;
+import org.example.data.MyDataException;
+import org.example.data.SerialisationRepository;
+import org.example.logger.EventLogger;
+import org.example.logger.LogCategory;
+import org.example.logger.LogLevel;
+import org.example.logger.MyEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,23 +14,29 @@ import java.util.List;
 public class MessageBus {
     private List<ChatMessage> messages;
     private static MessageBus instance;
+    private List <ChatUser> chatUsers;
+    private static EventLogger logger = EventLogger.getInstance();
+    private static SerialisationRepository<SimulationState> repository = new SerialisationRepository<>("State.ser");
 
     public List<ChatUser> getChatUsers() {
         return chatUsers;
     }
 
-    private List <ChatUser> chatUsers;
-
     public static MessageBus getInstance() {
         if (instance == null) {
             instance = new MessageBus();
+            try {
+                instance.restoreFromState( (SimulationState) repository.loadData());
+            } catch (MyDataException e) {
+                logger.addEvent(new MyEvent(LogCategory.SYSTEM, LogLevel.INFO, "Simulation state wasn't found."));
+            }
         }
         return instance;
     }
 
     public void addMessage(ChatMessage message) {
         messages.add(message);
-
+        save();
     }
 
     public List<ChatMessage> getMessagesForUser(ChatUser user) {
@@ -73,6 +85,16 @@ public class MessageBus {
         }
         ChatUser chatUser = new ChatUser(name);
         chatUsers.add(chatUser);
+        save();
         return chatUser;
+    }
+
+    public void save() {
+        try {
+            repository.saveData(getSimulationState());
+        }
+        catch (MyDataException e) {
+            logger.addEvent(new MyEvent(LogCategory.SYSTEM, LogLevel.ERROR, "Saving state failed."));
+        }
     }
 }

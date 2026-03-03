@@ -5,18 +5,15 @@ import org.example.UI.themes.ThemeManager;
 
 import java.awt.*;
 
-public class MenuButton extends MyButton {
-    private static final Dimension DEFAULT_SIZE = new Dimension(160, 45);
+public class MainActionButton extends MyButton {
 
-    public MenuButton(String text) {
+    public MainActionButton(String text) {
         super(text);
-        setPreferredSize(DEFAULT_SIZE);
-        setMaximumSize(DEFAULT_SIZE);
     }
 
     @Override
     void initColors() {
-        baseColor = ThemeManager.getCurrentTheme().getMenuButtonBackground();
+        baseColor = ThemeManager.getCurrentTheme().getMainActionButtonBackground();
         hoverColor = ColorUtils.getBrighterColor(baseColor, 0.15f);
         pressedColor = ColorUtils.getBrighterColor(baseColor, 0.08f);
         disableColor = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 128);

@@ -118,4 +118,8 @@ public class UserCard extends JPanel {
         }
         return brightest;
     }
+
+    public ChatUser getUser() {
+        return user;
+    }
 }

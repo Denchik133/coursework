@@ -1,13 +1,22 @@
 package org.example.UI.screens;
 
-import org.example.UI.CipherType;
+import org.example.UI.OverlayScrollWrapper;
+import org.example.UI.UIContext;
+import org.example.UI.buttons.MyImageButton;
+import org.example.UI.themes.ThemeManager;
+import org.example.core.CipherType;
 import org.example.UI.MyErrorLabel;
+import org.example.UI.buttons.SecondActionButton;
 import org.example.core.CipherParams;
 import org.example.core.CipherService;
 import org.example.core.KeyField;
 import org.example.core.KeyValidator;
 import org.example.core.exceptions.KeyNotValidException;
 import org.example.core.exceptions.WrongCharacterException;
+import org.example.logger.EventLogger;
+import org.example.logger.LogCategory;
+import org.example.logger.LogLevel;
+import org.example.logger.MyEvent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,16 +25,20 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
-public class CipherScreen extends JPanel {
-
+public class CipherScreen extends MyScreen {
     private Navigator navigator;
+    private EventLogger logger = EventLogger.getInstance();
+    private Map<KeyField, JComponent> map = new HashMap<>();
     private JPanel cesarPanel;
     private JPanel adfgxPanel;
     private JPanel adfgvxPanel;
     private JPanel vigenerePanel;
-    private final JComboBox<CipherType> comboBox = new JComboBox<>(CipherType.values());
+    private JPanel bottomPanel;
+    private JPanel errorPanel;
+    private JPanel buttonPanel;
     private JPanel cardLayoutPanel = new JPanel(new CardLayout());
     private JTextField inputField0;
     private JTextField inputField1;
@@ -33,14 +46,19 @@ public class CipherScreen extends JPanel {
     private JTextField inputField3;
     private JTextField inputField4;
     private JTextField inputField5;
-    private JPanel bottomPanel;
-    private Map<KeyField, JComponent> map = new HashMap<>();
-    private JLabel errorMessage = new JLabel();
-    private boolean isEncryptModOn = true;
-    private final JComboBox<String> comboBox1 = new JComboBox<>(new String[]{"encrypt", "decrypt"});
     private final JTextArea inputArea = new JTextArea();
     private final JTextArea outputArea = new JTextArea();
+    private JLabel errorMessage = new JLabel();
+    private boolean isEncryptModOn = true;
+    private final JComboBox<CipherType> comboBox = new JComboBox<>(CipherType.values());
+    private static final String ENCRYPT = "encrypt";
+    private static final String DECRYPT = "decrypt";
+    private final JComboBox<String> comboBox1 = new JComboBox<>(new String[]{ENCRYPT, DECRYPT});
     private ActionListener encryptListener;
+    private JButton backButton = new SecondActionButton("Back to Menu");
+    private JButton saveButton = new SecondActionButton("Save");
+    private OverlayScrollWrapper inputAreaOverlay;
+    private OverlayScrollWrapper outputAreaOverlay;
 
     public CipherScreen (Navigator n) {
         navigator = n;
@@ -53,8 +71,15 @@ public class CipherScreen extends JPanel {
         JPanel textPanel = new JPanel();
         errorMessage = new JLabel("");
         bottomPanel = new JPanel();
+        errorPanel = new JPanel();
+        buttonPanel = new JPanel();
+        errorPanel.setLayout(new BoxLayout(errorPanel, BoxLayout.Y_AXIS));
+        errorPanel.add(errorMessage);
+        buttonPanel.add(saveButton);
+        buttonPanel.add(backButton);
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
-        bottomPanel.add(errorMessage);
+        bottomPanel.add(errorPanel);
+        bottomPanel.add(buttonPanel);
         this.setLayout(new BorderLayout());
         inputArea.setLineWrap(true);
         outputArea.setLineWrap(true);
@@ -63,13 +88,31 @@ public class CipherScreen extends JPanel {
         outputArea.setEditable(false);
         JScrollPane inputScroll = new JScrollPane(inputArea);
         JScrollPane outputScroll = new JScrollPane(outputArea);
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, inputScroll, outputScroll);
+        inputAreaOverlay = new OverlayScrollWrapper(inputScroll);
+        outputAreaOverlay = new OverlayScrollWrapper(outputScroll);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, inputAreaOverlay, outputAreaOverlay);
         textPanel.add(splitPane);
         splitPane.setResizeWeight(0.5);
         this.add(topPanel, BorderLayout.NORTH);
         this.add(textPanel, BorderLayout.CENTER);
         this.add(bottomPanel, BorderLayout.SOUTH);
         textPanel.setLayout(new GridLayout(1, 2));
+        buildOverlayPanels();
+    }
+
+    private void buildOverlayPanels() {
+        // Input area overlay
+        ImageIcon iconClear = UIContext.getClearIcon();
+        JButton clearButton = new MyImageButton(iconClear);
+        LinkedList<JButton> list = new LinkedList<>();
+        list.add(clearButton);
+        clearButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                inputArea.setText("");
+            }
+        });
+        inputAreaOverlay.addButtons(list);
     }
 
     private JPanel buildCesarPanel(){
@@ -157,14 +200,34 @@ public class CipherScreen extends JPanel {
     }
 
     private void updateOutputArea() throws WrongCharacterException, KeyNotValidException {
-        bottomPanel.removeAll();
-        bottomPanel.revalidate();
-        bottomPanel.repaint();
+        errorPanel.removeAll();
+        errorPanel.revalidate();
+        errorPanel.repaint();
         for (JComponent component : map.values()) {
             component.setBorder(UIManager.getBorder("TextField.border"));
         }
         CipherType type = (CipherType) comboBox.getSelectedItem();
         String input = inputArea.getText();
+        CipherParams params = buildCipherParams(type);
+        Map<KeyField, String> errorsMap = KeyValidator.validate(type, params);
+        if (errorsMap.isEmpty()) {
+            String result = isEncryptModOn ? CipherService.encrypt(input, params, type) : CipherService.decrypt(input, params, type);
+            outputArea.setText(result);
+            saveButton.setEnabled(true);
+        }
+        else {
+            for (KeyField keyField : errorsMap.keySet()) {
+                errorPanel.add(new MyErrorLabel(errorsMap.get(keyField)));
+                JComponent component = map.get(keyField);
+                component.setBorder(BorderFactory.createLineBorder(Color.RED));
+            }
+            saveButton.setEnabled(false);
+            bottomPanel.revalidate();
+            bottomPanel.repaint();
+        }
+    }
+
+    private CipherParams buildCipherParams(CipherType type) {
         String cesarShift = "";
         String vigenereKey = "";
         String key1 = "";
@@ -190,24 +253,29 @@ public class CipherScreen extends JPanel {
             }
         }
         CipherParams params = new CipherParams(cesarShift, vigenereKey, key1, key2);
-        Map<KeyField, String> errorsMap = KeyValidator.validate(type, params);
-        if (errorsMap.isEmpty()) {
-            String result = isEncryptModOn ? CipherService.encrypt(input, params, type) : CipherService.decrypt(input, params, type);
-            outputArea.setText(result);
-        }
-        else {
-            for (KeyField keyField : errorsMap.keySet()) {
-                bottomPanel.add(new MyErrorLabel(errorsMap.get(keyField)));
-                JComponent component = map.get(keyField);
-                component.setBorder(BorderFactory.createLineBorder(Color.RED));
-            }
-            bottomPanel.revalidate();
-            bottomPanel.repaint();
-        }
+        return params;
     }
 
 
     private void initListeners() {
+
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                navigator.show(Screens.MENU);
+            }
+        });
+
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CipherType type = (CipherType) comboBox.getSelectedItem();
+                String input = inputArea.getText();
+                CipherParams params = buildCipherParams(type);
+                logger.addEvent(new MyEvent(LogCategory.CIPHER, LogLevel.INFO, "Encryption completed", params, type, input, comboBox1.getSelectedItem().equals(ENCRYPT)));
+            }
+        });
+
         encryptListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -264,5 +332,48 @@ public class CipherScreen extends JPanel {
         String text = outputArea.getText();
         outputArea.setText(inputArea.getText());
         inputArea.setText(text);
+    }
+
+    public void restoreContext(MyEvent event) {
+        if (event.isEncrypt()) {
+            comboBox1.setSelectedItem(ENCRYPT);
+        }
+        else {
+            comboBox1.setSelectedItem(DECRYPT);
+        }
+        comboBox.setSelectedItem(event.getCipherType());
+        if (event.getCipherParams().getCesarShift() != null) {
+            inputField0.setText(event.getCipherParams().getCesarShift());
+        }
+        if (event.getCipherParams().getVigenereKey() != null) {
+            inputField3.setText(event.getCipherParams().getVigenereKey());
+        }
+        if (event.getCipherType() == CipherType.ADFGX) {
+            inputField2.setText(event.getCipherParams().getKey1());
+            inputField1.setText(event.getCipherParams().getKey2());
+        }
+        else if (event.getCipherType() == CipherType.ADFGVX) {
+            inputField4.setText(event.getCipherParams().getKey1());
+            inputField5.setText(event.getCipherParams().getKey2());
+        }
+        inputArea.setText(event.getCipherPayLoad().toString());
+        try {
+            updateOutputArea();
+        } catch (WrongCharacterException | KeyNotValidException e) {
+            e.printStackTrace();
+            logger.addEvent(new MyEvent(LogCategory.SYSTEM, LogLevel.ERROR, "Some error with restoring cipher context"));
+        }
+    }
+
+
+
+    @Override
+    protected void applyTheme() {
+        super.applyTheme();
+    }
+
+    @Override
+    protected void updateData() {
+
     }
 }

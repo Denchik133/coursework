@@ -9,15 +9,19 @@ import org.example.logger.LogCategory;
 import org.example.logger.LogLevel;
 import org.example.logger.MyEvent;
 
+import java.io.Serializable;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.time.Instant;
 
-public class ChatUser {
+public class ChatUser implements Serializable {
     private String name;
     private final KeyPair keyPair;
     private static final EventLogger LOGGER = EventLogger.getInstance();
     private static final String NEW_USER_INFO = "User created";
+    private static final String NEW_USER_MESSAGE = "Message sent";
+    @java.io.Serial
+    private static final long serialVersionUID = -1L;
 
     public String getName() {
         return name;
@@ -59,5 +63,6 @@ public class ChatUser {
         byte[] encryptedMessage = RSAService.encrypt(message, user.getPublicKey());
         ChatMessage chatMessage = new ChatMessage(this, user, encryptedMessage, Instant.now());
         messageBus.addMessage(chatMessage);
+        LOGGER.addEvent(new MyEvent(LogCategory.SIMULATION, LogLevel.INFO, NEW_USER_MESSAGE));
     }
 }

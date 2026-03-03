@@ -1,12 +1,12 @@
 package org.example.core;
 
-import org.example.UI.CipherType;
 import org.example.core.exceptions.KeyNotValidException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class KeyValidator {
+
     public static Map<KeyField, String> validate(CipherType type, CipherParams params) {
         Map<KeyField, String> map = new HashMap<>();
         switch (type) {

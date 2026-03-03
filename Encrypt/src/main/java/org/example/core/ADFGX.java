@@ -1,6 +1,5 @@
 package org.example.core;
 
-import org.example.UI.CipherType;
 import org.example.core.exceptions.KeyNotValidException;
 import org.example.core.exceptions.WrongCharacterException;
 

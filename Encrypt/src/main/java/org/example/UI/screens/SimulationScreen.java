@@ -1,10 +1,8 @@
 package org.example.UI.screens;
 
-import org.example.UI.ChatDialogWindow;
-import org.example.UI.MainFrame;
-import org.example.UI.UserCard;
-import org.example.UI.UserCardListener;
+import org.example.UI.*;
 import org.example.UI.buttons.MenuButton;
+import org.example.UI.buttons.CancelButton;
 import org.example.core.asymmetric.ChatUser;
 import org.example.core.asymmetric.MessageBus;
 import org.example.core.asymmetric.exceptions.ChatUserException;
@@ -13,26 +11,28 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
-public class SimulationScreen extends JPanel {
-
+public class SimulationScreen extends MyScreen {
     private JPanel centerArea = new JPanel();
+    private JPanel buttonPanel = new JPanel();
+    private JPanel bottomPanel = new JPanel();
     private MessageBus messageBus = MessageBus.getInstance();
     private Navigator navigator;
+    private JButton backButton;
 
     public SimulationScreen(Navigator n) {
         navigator = n;
+        backButton = new CancelButton("Back to Menu");
         buildPanel();
+        initListeners();
     }
 
     private void buildPanel() {
         this.setLayout(new BorderLayout());
         this.add(centerArea, BorderLayout.CENTER);
         JButton addUser = new MenuButton("Add User");
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.add(addUser);
+        buttonPanel.add(backButton);
+        buttonPanel.add(addUser);
         addUser.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -53,6 +53,7 @@ public class SimulationScreen extends JPanel {
             addUserCardsListeners(card);
             centerArea.add(card);
         }
+        bottomPanel.add(buttonPanel);
         this.add(bottomPanel, BorderLayout.SOUTH);
     }
 
@@ -60,18 +61,29 @@ public class SimulationScreen extends JPanel {
         card.setListener(new UserCardListener() {
             @Override
             public void onUserSelected(ChatUser user) {
-                ChatDialogWindow dialogWindow = new ChatDialogWindow(user);
-                dialogWindow.setVisible(true);
+                DialogWindowService service = DialogWindowService.getInstance();
                 card.setSelected(true);
-                dialogWindow.addWindowListener(new WindowAdapter() {
-                    @Override
-                    public void windowClosed(WindowEvent e) {
-                        super.windowClosed(e);
-                        card.setSelected(false);
-                    }
-                });
+                service.show(card.getUser());
             }
         });
     }
 
+    private void initListeners() {
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                navigator.show(Screens.MENU);
+            }
+        });
+    }
+
+    @Override
+    protected void applyTheme() {
+        super.applyTheme();
+    }
+
+    @Override
+    protected void updateData() {
+
+    }
 }
